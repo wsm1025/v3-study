@@ -1,4 +1,4 @@
-import { readonly, isReadonly } from "../reactive";
+import { readonly, isReadonly, isProxy } from "../reactive";
 
 describe("readonly", () => {
   it("happy path", () => {
@@ -8,6 +8,9 @@ describe("readonly", () => {
     expect(wrapp.foo).toBe(1);
     expect(isReadonly(wrapp)).toBe(true);
     expect(isReadonly(res)).toBe(false);
+    expect(isReadonly(wrapp.bar)).toBe(true);
+    expect(isReadonly(res.bar)).toBe(false);
+    expect(isProxy(wrapp)).toBe(true);
   });
   it("warn when setter", () => {
     console.warn = jest.fn();

@@ -1,4 +1,8 @@
-import { proxyHandlers, readonlyHandlers } from "./baseHandlel.ts";
+import {
+  proxyHandlers,
+  readonlyHandlers,
+  shallowReadonlyHandlers,
+} from "./baseHandlel.ts";
 export function reactive(raw) {
   return createProxy(raw, proxyHandlers);
 }
@@ -15,6 +19,13 @@ export function isReadonly(raw) {
 }
 export function readonly(raw) {
   return createProxy(raw, readonlyHandlers);
+}
+export function shallowReadOnly(raw) {
+  return createProxy(raw, shallowReadonlyHandlers);
+}
+
+export function isProxy(raw) {
+  return isReactive(raw) || isReadonly(raw);
 }
 
 function createProxy(raw: any, baseProxy) {

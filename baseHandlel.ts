@@ -1,10 +1,12 @@
 import { track, trigger } from "./effect";
-import { ReactiveFlags } from "./reactive";
+import { ReactiveFlags, reactive, readonly } from "./reactive";
+import { extend, isObject } from "./share";
 
 const get = createGetter();
 const set = createSetter();
+const shallowReadOnlyGet = createGetter(true, true);
 
-function createGetter(isReadonly = false) {
+function createGetter(isReadonly = false, shallow = false) {
   return function get(target, key) {
     if (key === ReactiveFlags.IS_REACTIVE) {
       return !isReadonly;
@@ -12,6 +14,15 @@ function createGetter(isReadonly = false) {
       return isReadonly;
     }
     const res = Reflect.get(target, key);
+
+    if (shallow) {
+      return res;
+    }
+    // 这里实现嵌套reactive 逻辑
+    if (isObject(res)) {
+      return isReadonly ? readonly(res) : reactive(res);
+    }
+
     if (!isReadonly) {
       // 在触发 get 的时候进行依赖收集
       track(target, key);
@@ -45,3 +56,6 @@ export const proxyHandlers = {
   get,
   set,
 };
+export const shallowReadonlyHandlers = extend({}, readonlyHandlers, {
+  get: shallowReadOnlyGet,
+});

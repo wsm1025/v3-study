@@ -1,3 +1,5 @@
+let activeEffect: ReactiveEffect;
+let shouldTrack: Boolean;
 class ReactiveEffect {
   private _fn;
   deps = [];
@@ -7,8 +9,16 @@ class ReactiveEffect {
     this.scheduler = scheduler;
   }
   run() {
+    // 这里会收集依赖 来自effect方法
+    if (!this.active) {
+      return this._fn();
+    }
+    shouldTrack = true;
     activeEffect = this;
-    return this._fn();
+    const res = this._fn();
+    // reset
+    shouldTrack = false;
+    return res;
   }
   stop() {
     if (this.active) {
@@ -21,9 +31,12 @@ function cleanEffect(effect) {
   effect.deps.forEach((dep) => {
     dep.delete(effect);
   });
+  effect.deps.length = 0;
 }
 const targetMap = new Map();
 export function track(target, key) {
+  if (!activeEffect || !shouldTrack) return;
+
   // target-> key ->dep
   let depsMap = targetMap.get(key);
   if (!depsMap) {
@@ -35,10 +48,9 @@ export function track(target, key) {
     dep = new Set();
     depsMap.set(key, dep);
   }
-  if (activeEffect) {
-    dep.add(activeEffect);
-    activeEffect.deps.push(dep);
-  }
+  if (dep.has(activeEffect)) return;
+  dep.add(activeEffect);
+  activeEffect.deps.push(dep);
 }
 export function trigger(target, key) {
   let depsMap = targetMap.get(target);
@@ -47,8 +59,6 @@ export function trigger(target, key) {
     effect.scheduler ? effect.scheduler() : effect.run();
   }
 }
-
-let activeEffect: ReactiveEffect;
 
 export function effect(fn: Function, options = {}) {
   const _effect = new ReactiveEffect(fn, options.scheduler);
