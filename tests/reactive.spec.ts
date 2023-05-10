@@ -21,4 +21,11 @@ describe("reactive", () => {
     expect(isReactive(obe.array)).toBe(true);
     expect(isReactive(obe.array[0])).toBe(true);
   });
+
+  it("test reactive", () => {
+    const value = reactive({
+      foo: 1,
+    });
+    value.foo = 2;
+  });
 });

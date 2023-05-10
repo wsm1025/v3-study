@@ -80,4 +80,11 @@ describe("ref", () => {
     expect(unRef(a)).toBe(1);
     expect(unRef(1)).toBe(1);
   });
+
+  it("test ref", () => {
+    const value = ref({
+      foo: 1,
+    });
+    value.value.foo = 2;
+  });
 });
