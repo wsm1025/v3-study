@@ -1,10 +1,10 @@
 let activeEffect: ReactiveEffect;
 let shouldTrack: Boolean;
-class ReactiveEffect {
+export class ReactiveEffect {
   private _fn;
   deps = [];
   active = true;
-  constructor(fn: Function, public scheduler: Function) {
+  constructor(fn: Function, public scheduler?: Function) {
     this._fn = fn;
     this.scheduler = scheduler;
   }
