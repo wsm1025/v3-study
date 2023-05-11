@@ -1,6 +1,6 @@
 import { track, trigger } from "./effect";
 import { ReactiveFlags, reactive, readonly } from "./reactive";
-import { extend, isObject } from "./share";
+import { extend, isObject } from "../../share";
 
 const get = createGetter();
 const set = createSetter();

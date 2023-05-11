@@ -2,7 +2,7 @@ import {
   proxyHandlers,
   readonlyHandlers,
   shallowReadonlyHandlers,
-} from "./baseHandlel.ts";
+} from "./baseHandlel";
 export function reactive(raw) {
   return createProxy(raw, proxyHandlers);
 }
