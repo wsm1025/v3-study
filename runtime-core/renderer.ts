@@ -5,7 +5,7 @@ export function render(vnode, container) {
   patch(vnode, container);
 }
 function patch(vnode, container) {
-  debugger;
+  console.log(vnode, "path");
   // 处理组件
   // TODO 判断 vnode 是不是 elemnet
   if (typeof vnode.type === "string") {
@@ -24,8 +24,10 @@ function mountComponent(vnode, container) {
   setupRenderEffect(instance, container);
 }
 function setupRenderEffect(instance: any, container: any) {
+  const { proxy } = instance;
   // 虚拟节点树🌲
-  const subTree = instance.render();
+  const subTree = instance.render.call(proxy);
+  console.log(subTree, "subTree");
   patch(subTree, container);
 }
 function processElement(vnode: any, container: any) {
