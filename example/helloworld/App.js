@@ -1,6 +1,8 @@
 import { h } from "../../lib/myVue.esm.js";
+window.slef = null;
 export const App = {
   render() {
+    window.self = this;
     return h(
       "div",
       { id: "root", class: ["red weight"] },

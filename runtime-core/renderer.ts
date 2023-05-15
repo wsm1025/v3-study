@@ -21,14 +21,16 @@ function processComponent(vnode, container) {
 function mountComponent(vnode, container) {
   const instance = createComponentInstance(vnode);
   setupComponent(instance);
-  setupRenderEffect(instance, container);
+  setupRenderEffect(instance, vnode, container);
 }
-function setupRenderEffect(instance: any, container: any) {
+function setupRenderEffect(instance: any, vnode, container: any) {
   const { proxy } = instance;
   // 虚拟节点树🌲
   const subTree = instance.render.call(proxy);
   console.log(subTree, "subTree");
   patch(subTree, container);
+  // 这里的 subtree 即为 渲染完好的 h 信息
+  vnode.el = subTree.el;
 }
 function processElement(vnode: any, container: any) {
   // init
@@ -38,7 +40,7 @@ function processElement(vnode: any, container: any) {
 function mountElement(vnode: any, container: any) {
   let { type, props, children } = vnode;
   // type
-  const el = document.createElement(type);
+  const el = (vnode.el = document.createElement(type));
   // 内容
   console.log(children);
   if (typeof children === "string") {

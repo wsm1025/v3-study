@@ -1,3 +1,5 @@
+import { publicInstanceHandler } from "./componentsPublicInstance";
+
 export function createComponentInstance(vnode) {
   const component = {
     vnode,
@@ -16,18 +18,7 @@ function setupStatefulComponent(instance) {
   console.log(instance, "instance");
   const Component = instance.type;
   // ctx
-  instance.proxy = new Proxy(
-    {},
-    {
-      get(target, key) {
-        const { setupState } = instance;
-        console.log(setupState, "setupState");
-        if (key in setupState) {
-          return setupState[key];
-        }
-      },
-    }
-  );
+  instance.proxy = new Proxy({ _: instance }, publicInstanceHandler);
   const { setup } = Component;
   if (setup) {
     // 在这里把 setup 的数据 获取到
