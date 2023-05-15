@@ -18,19 +18,19 @@ function processComponent(vnode, container) {
   mountComponent(vnode, container);
 }
 
-function mountComponent(vnode, container) {
-  const instance = createComponentInstance(vnode);
+function mountComponent(initialVnode, container) {
+  const instance = createComponentInstance(initialVnode);
   setupComponent(instance);
-  setupRenderEffect(instance, vnode, container);
+  setupRenderEffect(instance, initialVnode, container);
 }
-function setupRenderEffect(instance: any, vnode, container: any) {
+function setupRenderEffect(instance: any, initialVnode, container: any) {
   const { proxy } = instance;
   // 虚拟节点树🌲
   const subTree = instance.render.call(proxy);
   console.log(subTree, "subTree");
   patch(subTree, container);
   // 这里的 subtree 即为 渲染完好的 h 信息
-  vnode.el = subTree.el;
+  initialVnode.el = subTree.el;
 }
 function processElement(vnode: any, container: any) {
   // init
