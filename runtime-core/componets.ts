@@ -1,4 +1,5 @@
 import { shallowReadOnly } from "../src/reactivity/reactive";
+import { emit } from "./componentsEmit";
 import { initProps } from "./componentsProps";
 import { publicInstanceHandler } from "./componentsPublicInstance";
 export function createComponentInstance(vnode) {
@@ -7,7 +8,10 @@ export function createComponentInstance(vnode) {
     type: vnode.type,
     setupState: {},
     props: {},
+    emit: () => {},
   };
+  // 第一个参数 为 null 不改变 this 那么 emit 函数的 第一个参数即为instance 用户再传第二个参数
+  component.emit = emit.bind(null, component) as any;
   return component;
 }
 
@@ -24,7 +28,9 @@ function setupStatefulComponent(instance) {
   const { setup } = Component;
   if (setup) {
     // 在这里把 setup 的数据 获取到
-    const setupRes = setup(shallowReadOnly(instance.props));
+    const setupRes = setup(shallowReadOnly(instance.props), {
+      emit: instance.emit,
+    });
     handleSetupResult(instance, setupRes);
   }
 }
