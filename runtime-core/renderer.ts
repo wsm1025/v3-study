@@ -9,7 +9,7 @@ function patch(vnode, container) {
   // ShapeFlags
   // vnode => flag
   const { shapeFlag } = vnode;
-  console.log(vnode, "path");
+  console.log(vnode, "vnode");
   // 处理组件
   // TODO 判断 vnode 是不是 elemnet
   if (shapeFlag & ShapeFlags.ELEMENT) {

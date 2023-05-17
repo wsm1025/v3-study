@@ -1,13 +1,7 @@
 import { h } from "../../lib/myVue.esm.js";
-window.slef = null;
+import { Foo } from "./foo.js";
 export const App = {
   render() {
-    window.self = this;
-    // return h(
-    //   "div",
-    //   { id: "root", class: ["red weight"] },
-    //   "hi," + this.message
-    // );
     return h(
       "div",
       {
@@ -18,14 +12,13 @@ export const App = {
         },
       },
       [
-        h("div", null, "hi"),
-        h("p", { class: ["blue"] }, h("span", null, "niubi")),
+        h("div", { id: "el" }, "hi"),
+        h("p", { class: ["blue"] }, h("span", { id: "el" }, "niubi")),
+        h(Foo, { count: 2 }),
       ]
     );
   },
   setup() {
-    return {
-      message: "my vue",
-    };
+    return {};
   },
 };

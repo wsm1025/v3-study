@@ -3,3 +3,5 @@ export const isObject = (val) => {
 };
 export const extend = Object.assign;
 export const hasChange = (newValue, oldValue) => !Object.is(newValue, oldValue);
+export const hasOwn = (val, key) =>
+  Object.prototype.hasOwnProperty.call(val, key);

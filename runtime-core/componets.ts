@@ -1,16 +1,18 @@
+import { shallowReadOnly } from "../src/reactivity/reactive";
+import { initProps } from "./componentsProps";
 import { publicInstanceHandler } from "./componentsPublicInstance";
-
 export function createComponentInstance(vnode) {
   const component = {
     vnode,
     type: vnode.type,
     setupState: {},
+    props: {},
   };
   return component;
 }
 
 export function setupComponent(instance) {
-  // initProps()
+  initProps(instance, instance.vnode.props);
   // initSlots()
   setupStatefulComponent(instance);
 }
@@ -22,7 +24,7 @@ function setupStatefulComponent(instance) {
   const { setup } = Component;
   if (setup) {
     // 在这里把 setup 的数据 获取到
-    const setupRes = setup();
+    const setupRes = setup(shallowReadOnly(instance.props));
     handleSetupResult(instance, setupRes);
   }
 }
