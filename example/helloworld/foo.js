@@ -14,6 +14,7 @@ export const Foo = {
     props.count++;
     const emitAdd = () => {
       console.log("emitAdd");
+      // 触发事件 父组件再去props上找 找到了触发
       emit("add", 1, 2);
       emit("add-foo");
     };

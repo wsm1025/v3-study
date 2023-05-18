@@ -13,8 +13,8 @@ export const App = {
         h("p", { class: ["blue"] }, h("span", { id: "el" }, "niubi")),
         h(Foo, {
           count: 2,
-          onAdd(a, b) {
-            console.log("onAdd", a, b);
+          onAdd: (a, b) => {
+            this.add(a, b);
           },
           onAddFoo() {
             console.log("onaddfoo");
@@ -24,6 +24,11 @@ export const App = {
     );
   },
   setup() {
-    return {};
+    const add = (a, b) => {
+      console.log("这是appjs的add事件", a, b);
+    };
+    return {
+      add,
+    };
   },
 };

@@ -11,6 +11,8 @@ export function createComponentInstance(vnode) {
     emit: () => {},
   };
   // 第一个参数 为 null 不改变 this 那么 emit 函数的 第一个参数即为instance 用户再传第二个参数
+  // 这里 instance 即为 父组件
+  console.log(vnode, "component");
   component.emit = emit.bind(null, component) as any;
   return component;
 }
