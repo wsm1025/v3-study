@@ -13,7 +13,12 @@ export function createVnode(type, props?, children?) {
   } else if (Array.isArray(children)) {
     vnode.shapeFlag |= ShapeFlags.ARRAY_CHILDREN;
   }
-
+  //组件类型 +  children object ==>slot
+  if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPOENTS) {
+    if (typeof children === "object") {
+      vnode.shapeFlag |= ShapeFlags.SLOT_CHILDREN;
+    }
+  }
   return vnode;
 }
 function getShapeFlag(type: any) {

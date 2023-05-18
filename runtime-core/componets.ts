@@ -2,6 +2,7 @@ import { shallowReadOnly } from "../src/reactivity/reactive";
 import { emit } from "./componentsEmit";
 import { initProps } from "./componentsProps";
 import { publicInstanceHandler } from "./componentsPublicInstance";
+import { initSlots } from "./componentsSlots";
 export function createComponentInstance(vnode) {
   const component = {
     vnode,
@@ -9,6 +10,7 @@ export function createComponentInstance(vnode) {
     setupState: {},
     props: {},
     emit: () => {},
+    slots: {},
   };
   // 第一个参数 为 null 不改变 this 那么 emit 函数的 第一个参数即为instance 用户再传第二个参数
   // 这里 instance 即为 父组件
@@ -19,7 +21,7 @@ export function createComponentInstance(vnode) {
 
 export function setupComponent(instance) {
   initProps(instance, instance.vnode.props);
-  // initSlots()
+  initSlots(instance, instance.vnode.children);
   setupStatefulComponent(instance);
 }
 function setupStatefulComponent(instance) {

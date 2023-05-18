@@ -1,4 +1,4 @@
-import { h } from "../../lib/myVue.esm.js";
+import { h, renderSlot } from "../../lib/myVue.esm.js";
 export const Foo = {
   render() {
     const button = h(
@@ -8,7 +8,16 @@ export const Foo = {
       },
       "add"
     );
-    return h("div", { el: 10 }, ["foo:" + this.count, button]);
+    return h("div", {}, [
+      button,
+      // 具名插槽
+      // 作用域插槽
+      h("div", {}, [
+        renderSlot(this.$slots, "default"),
+        button,
+        // renderSlot(this.$slots, "footer"),
+      ]),
+    ]);
   },
   setup(props, { emit }) {
     props.count++;

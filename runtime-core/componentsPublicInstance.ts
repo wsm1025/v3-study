@@ -2,6 +2,7 @@ import { hasOwn } from "../share/index";
 
 const publicPropertiesMap: any = {
   $el: (i: { vnode: { el: any } }) => i.vnode.el,
+  $slots: (i: { slots: any }) => i.slots,
 };
 export const publicInstanceHandler = {
   get({ _: instance }, key) {

@@ -11,15 +11,25 @@ export const App = {
       [
         h("div", { id: "el" }, "hi"),
         h("p", { class: ["blue"] }, h("span", { id: "el" }, "niubi")),
-        h(Foo, {
-          count: 2,
-          onAdd: (a, b) => {
-            this.add(a, b);
+        h(
+          Foo,
+          {
+            count: 2,
+            onAdd: (a, b) => {
+              this.add(a, b);
+            },
+            onAddFoo() {
+              console.log("onaddfoo");
+            },
           },
-          onAddFoo() {
-            console.log("onaddfoo");
-          },
-        }),
+          {
+            // {
+            // header: ({ age }) => h("p", {}, "slots" + age),
+            // footer: () => h("button", {}, "i am slotsButton"),
+            // }
+            default: () => h("p", {}, "我是普通插槽"),
+          }
+        ),
       ]
     );
   },
