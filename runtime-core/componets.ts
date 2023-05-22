@@ -31,12 +31,12 @@ function setupStatefulComponent(instance) {
   instance.proxy = new Proxy({ _: instance }, publicInstanceHandler);
   const { setup } = Component;
   if (setup) {
-    currentInstance = instance;
+    setCurrentInstance(instance);
     // 在这里把 setup 的数据 获取到
     const setupRes = setup(shallowReadOnly(instance.props), {
       emit: instance.emit,
     });
-    currentInstance = null;
+    setCurrentInstance(null);
     handleSetupResult(instance, setupRes);
   }
 }
@@ -60,4 +60,8 @@ let currentInstance: null = null;
 
 export function getCurrentInstance() {
   return currentInstance;
+}
+
+function setCurrentInstance(instance) {
+  currentInstance = instance;
 }
