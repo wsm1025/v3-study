@@ -10,7 +10,7 @@ function patch(vnode, container) {
   // ShapeFlags
   // vnode => flag
   const { type, shapeFlag } = vnode;
-  console.log(vnode, "vnode");
+  // console.log(vnode, "vnode");
 
   // Fragment => 只渲染 所有的children
   switch (type) {
@@ -58,7 +58,7 @@ function setupRenderEffect(instance: any, initialVnode, container: any) {
   const { proxy } = instance;
   // 虚拟节点树🌲
   const subTree = instance.render.call(proxy);
-  console.log(subTree, "subTree");
+  // console.log(subTree, "subTree");
   patch(subTree, container);
   // 这里的 subtree 即为 渲染完好的 h 信息
   initialVnode.el = subTree.el;
@@ -73,7 +73,7 @@ function mountElement(vnode: any, container: any) {
   // type
   const el = (vnode.el = document.createElement(type));
   // 内容
-  console.log(children, "children");
+  // console.log(children, "children");
   if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
     el.textContent = children;
   } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {

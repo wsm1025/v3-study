@@ -7,7 +7,7 @@ const publicPropertiesMap: any = {
 export const publicInstanceHandler = {
   get({ _: instance }, key) {
     const { setupState, props } = instance;
-    console.log(setupState, "setupState");
+    // console.log(setupState, "setupState");
     if (hasOwn(setupState, key)) {
       return setupState[key];
     } else if (hasOwn(props, key)) {

@@ -14,7 +14,7 @@ export function createComponentInstance(vnode) {
   };
   // 第一个参数 为 null 不改变 this 那么 emit 函数的 第一个参数即为instance 用户再传第二个参数
   // 这里 instance 即为 父组件
-  console.log(vnode, "component");
+  // console.log(vnode, "component");
   component.emit = emit.bind(null, component) as any;
   return component;
 }
@@ -25,16 +25,18 @@ export function setupComponent(instance) {
   setupStatefulComponent(instance);
 }
 function setupStatefulComponent(instance) {
-  console.log(instance, "instance");
+  // console.log(instance, "instance");
   const Component = instance.type;
   // ctx
   instance.proxy = new Proxy({ _: instance }, publicInstanceHandler);
   const { setup } = Component;
   if (setup) {
+    currentInstance = instance;
     // 在这里把 setup 的数据 获取到
     const setupRes = setup(shallowReadOnly(instance.props), {
       emit: instance.emit,
     });
+    currentInstance = null;
     handleSetupResult(instance, setupRes);
   }
 }
@@ -51,7 +53,11 @@ function finishComponentSetup(instance: any) {
   const Component = instance.type;
   // if (Component.render) {
   instance.render = Component.render;
-
-  console.log(instance, "最后的instance");
+  // console.log(instance, "最后的instance");
   // }
+}
+let currentInstance: null = null;
+
+export function getCurrentInstance() {
+  return currentInstance;
 }

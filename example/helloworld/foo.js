@@ -1,4 +1,4 @@
-import { h, renderSlot } from "../../lib/myVue.esm.js";
+import { h, renderSlot, getCurrentInstance } from "../../lib/myVue.esm.js";
 export const Foo = {
   render() {
     const button = h(
@@ -20,6 +20,9 @@ export const Foo = {
     ]);
   },
   setup(props, { emit }) {
+    const instance = getCurrentInstance();
+    console.log("APP=>", instance);
+
     props.count++;
     const emitAdd = () => {
       console.log("emitAdd");

@@ -1,6 +1,7 @@
-import { h, creteTextVnode } from "../../lib/myVue.esm.js";
+import { h, creteTextVnode, getCurrentInstance } from "../../lib/myVue.esm.js";
 import { Foo } from "./foo.js";
 export const App = {
+  name: "APP",
   render() {
     return h(
       "div",
@@ -37,9 +38,12 @@ export const App = {
     );
   },
   setup() {
+    const instance = getCurrentInstance();
+    console.log("APP=>", instance);
     const add = (a, b) => {
       console.log("这是appjs的add事件", a, b);
     };
+
     return {
       add,
     };
