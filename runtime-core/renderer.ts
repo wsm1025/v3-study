@@ -3,10 +3,23 @@ import { ShapeFlags } from "../share/shapeFlags";
 import { createComponentInstance, setupComponent } from "./componets";
 import { Fragment, Text } from "./vnode";
 
-export function render(vnode, container) {
-  patch(vnode, container);
+export function render(
+  vnode: {
+    type: any;
+    props: any;
+    children: any;
+    shapeFlag: ShapeFlags;
+    el: null;
+  },
+  container: any
+) {
+  patch(vnode, container, null);
 }
-function patch(vnode, container) {
+function patch(
+  vnode: any,
+  container: { append: (arg0: Text) => void },
+  parentComponent: undefined | null
+) {
   // ShapeFlags
   // vnode => flag
   const { type, shapeFlag } = vnode;
@@ -15,7 +28,7 @@ function patch(vnode, container) {
   // Fragment => 只渲染 所有的children
   switch (type) {
     case Fragment:
-      processFragment(vnode, container);
+      processFragment(vnode, container, parentComponent);
       break;
     case Text:
       processText(vnode, container);
@@ -24,16 +37,16 @@ function patch(vnode, container) {
       // 处理组件
       // TODO 判断 vnode 是不是 elemnet
       if (shapeFlag & ShapeFlags.ELEMENT) {
-        processElement(vnode, container);
+        processElement(vnode, container, parentComponent);
       } else if (shapeFlag & ShapeFlags.STATEFUL_COMPOENTS) {
-        processComponent(vnode, container);
+        processComponent(vnode, container, parentComponent);
       }
       break;
   }
 }
 
-function processFragment(vnode: any, container: any) {
-  mountChildren(vnode, container);
+function processFragment(vnode: any, container: any, parentComponent: any) {
+  mountChildren(vnode, container, parentComponent);
 }
 
 function processText(
@@ -45,30 +58,38 @@ function processText(
   container.append(textNode);
 }
 
-function processComponent(vnode, container) {
-  mountComponent(vnode, container);
+function processComponent(vnode: any, container: any, parentComponent: any) {
+  mountComponent(vnode, container, parentComponent);
 }
 
-function mountComponent(initialVnode, container) {
-  const instance = createComponentInstance(initialVnode);
+function mountComponent(
+  initialVnode: any,
+  container: any,
+  parentComponent: any
+) {
+  const instance = createComponentInstance(initialVnode, parentComponent);
   setupComponent(instance);
-  setupRenderEffect(instance, initialVnode, container);
+  setupRenderEffect(instance, initialVnode, container, parentComponent);
 }
-function setupRenderEffect(instance: any, initialVnode, container: any) {
+function setupRenderEffect(
+  instance: any,
+  initialVnode: { el: any },
+  container: any
+) {
   const { proxy } = instance;
   // 虚拟节点树🌲
   const subTree = instance.render.call(proxy);
   // console.log(subTree, "subTree");
-  patch(subTree, container);
+  patch(subTree, container, instance);
   // 这里的 subtree 即为 渲染完好的 h 信息
   initialVnode.el = subTree.el;
 }
-function processElement(vnode: any, container: any) {
+function processElement(vnode: any, container: any, parentComponent: any) {
   // init
-  mountElement(vnode, container);
+  mountElement(vnode, container, parentComponent);
   // update
 }
-function mountElement(vnode: any, container: any) {
+function mountElement(vnode: any, container: any, parentComponent: any) {
   let { type, props, children, shapeFlag } = vnode;
   // type
   const el = (vnode.el = document.createElement(type));
@@ -77,9 +98,9 @@ function mountElement(vnode: any, container: any) {
   if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
     el.textContent = children;
   } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-    mountChildren(vnode, el);
+    mountChildren(vnode, el, parentComponent);
   } else if (isObject(children)) {
-    patch(children, el);
+    patch(children, el, parentComponent);
   }
   // props
   if (props) {
@@ -97,8 +118,12 @@ function mountElement(vnode: any, container: any) {
   container.appendChild(el);
 }
 
-function mountChildren(vnode: { children: Element[] }, el: any) {
+function mountChildren(
+  vnode: { children: Element[] },
+  el: any,
+  parentComponent: any
+) {
   vnode.children.forEach((v) => {
-    patch(v, el);
+    patch(v, el, parentComponent);
   });
 }
