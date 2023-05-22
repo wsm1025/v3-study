@@ -1,4 +1,4 @@
-import { h } from "../../lib/myVue.esm.js";
+import { h, creteTextVnode } from "../../lib/myVue.esm.js";
 import { Foo } from "./foo.js";
 export const App = {
   render() {
@@ -27,7 +27,10 @@ export const App = {
             // header: ({ age }) => h("p", {}, "slots" + age),
             // footer: () => h("button", {}, "i am slotsButton"),
             // }
-            default: () => h("p", {}, "我是普通插槽"),
+            default: () => [
+              h("p", {}, "我是普通插槽"),
+              creteTextVnode("你好鸭子"),
+            ],
           }
         ),
       ]
