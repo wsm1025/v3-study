@@ -43,7 +43,7 @@ export function track(target, key) {
     return;
   }
   // target-> key ->dep
-  let depsMap = targetMap.get(key);
+  let depsMap = targetMap.get(target);
   if (!depsMap) {
     depsMap = new Map();
     targetMap.set(target, depsMap);
