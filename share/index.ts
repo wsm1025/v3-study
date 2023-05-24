@@ -16,3 +16,4 @@ export const capitalize = (str: string) => {
 export const handlerKey = (str: string) => {
   return str ? "on" + capitalize(str) : "";
 };
+export const EMPTY_OBJ = {};

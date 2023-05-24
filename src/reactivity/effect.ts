@@ -65,6 +65,12 @@ export function trigger(target, key) {
   let depsMap = targetMap.get(target);
   if (!depsMap) return;
   let dep = depsMap.get(key);
+  console.log(dep, "dep");
+  if (!dep) {
+    console.log(key, "key");
+    dep = new Map();
+    depsMap.set(key, dep);
+  }
   triggerEffects(dep);
 }
 export function triggerEffects(dep) {

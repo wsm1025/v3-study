@@ -1,9 +1,10 @@
+import { proxyRefs } from "../src";
 import { shallowReadOnly } from "../src/reactivity/reactive";
 import { emit } from "./componentsEmit";
 import { initProps } from "./componentsProps";
 import { publicInstanceHandler } from "./componentsPublicInstance";
 import { initSlots } from "./componentsSlots";
-interface instanceType {
+type instanceType = {
   vnode: any;
   type: any;
   setupState: {};
@@ -13,11 +14,13 @@ interface instanceType {
   provides: {};
   parent: any;
   proxy?: any;
-}
+  isMounted: boolean;
+  subTree: {};
+};
 
 export function createComponentInstance(vnode: { type: any }, parent: any) {
   console.log("createComponentInstance", parent);
-  const component = {
+  const component: instanceType = {
     vnode,
     type: vnode.type,
     setupState: {},
@@ -26,6 +29,8 @@ export function createComponentInstance(vnode: { type: any }, parent: any) {
     slots: {},
     provides: parent ? parent.provides : {},
     parent,
+    subTree: {},
+    isMounted: false,
   };
   // 第一个参数 为 null 不改变 this 那么 emit 函数的 第一个参数即为instance 用户再传第二个参数
   // 这里 instance 即为 父组件
@@ -60,7 +65,7 @@ function handleSetupResult(instance: instanceType, setupRes: any) {
   // TODO function
   if (typeof setupRes === "object") {
     // 在这里把 setup 的数据 挂载在 setupState
-    instance.setupState = setupRes;
+    instance.setupState = proxyRefs(setupRes);
   }
   finishComponentSetup(instance);
 }

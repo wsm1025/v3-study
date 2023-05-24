@@ -2,14 +2,17 @@ import { createRenderer } from "../runtime-core";
 function createElement(type) {
   return document.createElement(type);
 }
-function patchProps(el, key, props) {
+function patchProps(el, key, preValue, nextValue) {
   const isOn = (key: string) => /^on[A-Z]/.test(key);
   if (isOn(key)) {
     // on + event
     const event = key.slice(2).toLocaleLowerCase();
-    el.addEventListener(event, props[key]);
+    el.addEventListener(event, nextValue);
   } else {
-    el.setAttribute(key, props[key]);
+    if ([undefined, null].includes(nextValue)) {
+      return el.removeAttribute(key);
+    }
+    el.setAttribute(key, nextValue);
   }
 }
 function insert(el: any, parent: Element) {
