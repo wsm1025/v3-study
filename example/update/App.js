@@ -41,10 +41,7 @@ export const App = {
     };
     const props = ref({});
     const change1 = () => {
-      console.log(props);
-
       props.value.foo = "new foo";
-      console.log(props);
     };
     const change2 = () => {
       props.value.foo = undefined;
