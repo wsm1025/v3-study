@@ -1,5 +1,5 @@
 import { createRenderer } from "../runtime-core";
-function createElement(type) {
+function createElement(type: any) {
   return document.createElement(type);
 }
 function patchProps(el, key, preValue, nextValue) {
@@ -15,13 +15,14 @@ function patchProps(el, key, preValue, nextValue) {
     el.setAttribute(key, nextValue);
   }
 }
-function insert(el: any, parent: Element) {
-  parent.appendChild(el);
+function insert(child: any, parent: Element, anchor = null) {
+  parent.insertBefore(child, anchor);
 }
 
 function remove(child: { parentNode: any }) {
   const parent = child.parentNode;
   if (parent) {
+    console.log("删除节点", child);
     parent.removeChild(child);
   }
 }
