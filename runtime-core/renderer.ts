@@ -1,6 +1,7 @@
 import { EMPTY_OBJ, isObject } from "../share/index";
 import { ShapeFlags } from "../share/shapeFlags";
 import { effect } from "../src/reactivity/effect";
+import { shouldUpdateComponent } from "./componentUpdateUtils";
 import { createComponentInstance, setupComponent } from "./componets";
 import { createAppApi } from "./createApp";
 import { Fragment, Text } from "./vnode";
@@ -93,7 +94,27 @@ export function createRenderer(options: {
     parentComponent: any,
     anchor: null | undefined
   ) {
-    mountComponent(n2, container, parentComponent, anchor);
+    // 创建组件
+    if (!n1) {
+      mountComponent(n2, container, parentComponent, anchor);
+    } else {
+      updateComponent(n1, n2);
+    }
+  }
+
+  function updateComponent(n1, n2) {
+    const instance = (n2.component = n1.component);
+    // 是否需要更新
+    if (shouldUpdateComponent(n1, n2)) {
+      // next 存储 下次需要更新的虚拟节点
+      instance.next = n2;
+      console.log("组件更新");
+      instance.update();
+    } else {
+      n2.el = n1.el;
+      instance.vnode = n2;
+      console.log("组件不需要更新");
+    }
   }
 
   function mountComponent(
@@ -102,7 +123,10 @@ export function createRenderer(options: {
     parentComponent: any,
     anchor: null | undefined
   ) {
-    const instance = createComponentInstance(initialVnode, parentComponent);
+    const instance = (initialVnode.component = createComponentInstance(
+      initialVnode,
+      parentComponent
+    ));
     setupComponent(instance);
     setupRenderEffect(instance, initialVnode, container, anchor);
   }
@@ -112,7 +136,8 @@ export function createRenderer(options: {
     container: any,
     anchor: null | undefined
   ) {
-    effect(() => {
+    // effect 返回值是一个 runner 可以 再次调用他 执行 他传递的函数 所以 在instance 上 挂载 所需要的更新函数
+    instance.update = effect(() => {
       if (!instance.isMounted) {
         console.log("init");
         const { proxy } = instance;
@@ -126,13 +151,20 @@ export function createRenderer(options: {
         // 这里说明已挂载
         instance.isMounted = true;
       } else {
-        const { proxy } = instance;
+        console.log("update");
+        const { next, proxy, vnode } = instance;
+        // 需要更新组件的 props
+        if (next) {
+          // 更新 el
+          next.el = vnode.el;
+          // 更新相关属性
+          updateComponentPreRender(instance, next);
+        }
         const subTree = instance.render.call(proxy);
         // 把最新的subtree 存起来 下次更新对比
         const preSubTree = instance.subTree;
         instance.subTree = subTree;
         // console.log(subTree, preSubTree);
-        console.log("update");
         patch(preSubTree, subTree, container, instance, anchor);
       }
     });
@@ -411,55 +443,60 @@ export function createRenderer(options: {
     });
   }
 
-  function getSequence(arr: number[]) {
-    const len = arr.length;
-    const min_arr = [0]; // 存储最小的索引，以索引0为基准
-    const prev_arr = arr.slice(); // 储存前面的索引，slice为浅复制一个新的数组
-    let last_index;
-    let start;
-    let end;
-    let middle;
-    for (let i = 0; i < len; i++) {
-      let arrI = arr[i];
-      // 1. 如果当前n比min_arr最后一项大
-      last_index = min_arr[min_arr.length - 1];
-      if (arr[last_index] < arrI) {
-        min_arr.push(i);
-        prev_arr[i] = last_index; // 前面的索引
-        continue;
-      }
-      // 2. 如果当前n比min_arr最后一项小（二分类查找）
-      start = 0;
-      end = min_arr.length - 1;
-      while (start < end) {
-        middle = (start + end) >> 1; // 相当于Math.floor((start + end)/2)
-        if (arr[min_arr[middle]] < arrI) {
-          start = middle + 1;
-        } else {
-          end = middle;
-        }
-      }
-      if (arr[min_arr[end]] > arrI) {
-        min_arr[end] = i;
-        if (end > 0) {
-          prev_arr[i] = min_arr[end - 1]; // 前面的索引
-        }
-      }
-    }
-
-    // 从最后一项往前查找
-    let result = [];
-    let i = min_arr.length;
-    let last = min_arr[i - 1];
-    while (i-- > 0) {
-      result[i] = last;
-      last = prev_arr[last];
-    }
-
-    return result;
-  }
-
   return {
     createApp: createAppApi(render),
   };
+}
+
+function updateComponentPreRender(instance, nextVnode) {
+  instance.vnode = nextVnode;
+  instance.next = null;
+  instance.props = nextVnode.props;
+}
+function getSequence(arr: number[]) {
+  const len = arr.length;
+  const min_arr = [0]; // 存储最小的索引，以索引0为基准
+  const prev_arr = arr.slice(); // 储存前面的索引，slice为浅复制一个新的数组
+  let last_index;
+  let start;
+  let end;
+  let middle;
+  for (let i = 0; i < len; i++) {
+    let arrI = arr[i];
+    // 1. 如果当前n比min_arr最后一项大
+    last_index = min_arr[min_arr.length - 1];
+    if (arr[last_index] < arrI) {
+      min_arr.push(i);
+      prev_arr[i] = last_index; // 前面的索引
+      continue;
+    }
+    // 2. 如果当前n比min_arr最后一项小（二分类查找）
+    start = 0;
+    end = min_arr.length - 1;
+    while (start < end) {
+      middle = (start + end) >> 1; // 相当于Math.floor((start + end)/2)
+      if (arr[min_arr[middle]] < arrI) {
+        start = middle + 1;
+      } else {
+        end = middle;
+      }
+    }
+    if (arr[min_arr[end]] > arrI) {
+      min_arr[end] = i;
+      if (end > 0) {
+        prev_arr[i] = min_arr[end - 1]; // 前面的索引
+      }
+    }
+  }
+
+  // 从最后一项往前查找
+  let result = [];
+  let i = min_arr.length;
+  let last = min_arr[i - 1];
+  while (i-- > 0) {
+    result[i] = last;
+    last = prev_arr[last];
+  }
+
+  return result;
 }

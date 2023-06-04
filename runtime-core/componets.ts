@@ -16,6 +16,7 @@ type instanceType = {
   proxy?: any;
   isMounted: boolean;
   subTree: {};
+  n2: null;
 };
 
 export function createComponentInstance(vnode: { type: any }, parent: any) {
@@ -31,6 +32,8 @@ export function createComponentInstance(vnode: { type: any }, parent: any) {
     parent,
     subTree: {},
     isMounted: false,
+    // 下次需要更新的虚拟节点
+    n2: null,
   };
   // 第一个参数 为 null 不改变 this 那么 emit 函数的 第一个参数即为instance 用户再传第二个参数
   // 这里 instance 即为 父组件
