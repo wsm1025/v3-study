@@ -4,6 +4,7 @@ import { effect } from "../src/reactivity/effect";
 import { shouldUpdateComponent } from "./componentUpdateUtils";
 import { createComponentInstance, setupComponent } from "./componets";
 import { createAppApi } from "./createApp";
+import { queueJobs } from "./scheduler";
 import { Fragment, Text } from "./vnode";
 
 export function createRenderer(options: {
@@ -137,37 +138,46 @@ export function createRenderer(options: {
     anchor: null | undefined
   ) {
     // effect 返回值是一个 runner 可以 再次调用他 执行 他传递的函数 所以 在instance 上 挂载 所需要的更新函数
-    instance.update = effect(() => {
-      if (!instance.isMounted) {
-        console.log("init");
-        const { proxy } = instance;
-        // 虚拟节点树🌲
-        // 存下来 好更新的时候对比
-        const subTree = (instance.subTree = instance.render.call(proxy));
-        // console.log(subTree, "subTree");
-        patch(null, subTree, container, instance, anchor);
-        // 这里的 subtree 即为 渲染完好的 h 信息
-        initialVnode.el = subTree.el;
-        // 这里说明已挂载
-        instance.isMounted = true;
-      } else {
-        console.log("update");
-        const { next, proxy, vnode } = instance;
-        // 需要更新组件的 props
-        if (next) {
-          // 更新 el
-          next.el = vnode.el;
-          // 更新相关属性
-          updateComponentPreRender(instance, next);
+    instance.update = effect(
+      () => {
+        if (!instance.isMounted) {
+          console.log("init");
+          const { proxy } = instance;
+          // 虚拟节点树🌲
+          // 存下来 好更新的时候对比
+          const subTree = (instance.subTree = instance.render.call(proxy));
+          // console.log(subTree, "subTree");
+          patch(null, subTree, container, instance, anchor);
+          // 这里的 subtree 即为 渲染完好的 h 信息
+          initialVnode.el = subTree.el;
+          // 这里说明已挂载
+          instance.isMounted = true;
+        } else {
+          console.log("update");
+          const { next, proxy, vnode } = instance;
+          // 需要更新组件的 props
+          if (next) {
+            // 更新 el
+            next.el = vnode.el;
+            // 更新相关属性
+            updateComponentPreRender(instance, next);
+          }
+          const subTree = instance.render.call(proxy);
+          // 把最新的subtree 存起来 下次更新对比
+          const preSubTree = instance.subTree;
+          instance.subTree = subTree;
+          // console.log(subTree, preSubTree);
+          patch(preSubTree, subTree, container, instance, anchor);
         }
-        const subTree = instance.render.call(proxy);
-        // 把最新的subtree 存起来 下次更新对比
-        const preSubTree = instance.subTree;
-        instance.subTree = subTree;
-        // console.log(subTree, preSubTree);
-        patch(preSubTree, subTree, container, instance, anchor);
+      },
+      {
+        // 处理优化组件更新
+        scheduler() {
+          console.log("update-scheduler");
+          queueJobs(instance.update);
+        },
       }
-    });
+    );
   }
   function processElement(
     n1: any,
