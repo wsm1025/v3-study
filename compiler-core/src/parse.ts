@@ -1,5 +1,8 @@
 import { NodeTypes } from "./ast";
-
+const enum TagType {
+  start,
+  end,
+}
 export function baseParse(content: string) {
   const context = createParserContext(content);
   return creteRoot(parseChild(context));
@@ -8,8 +11,16 @@ export function baseParse(content: string) {
 function parseChild(context: { source: string }) {
   const nodes = [];
   let node;
-  if (context.source.startsWith("{{")) {
+  let s = context.source;
+  if (s.startsWith("{{")) {
     node = parseInterpolation(context);
+  } else if (s[0] === "<") {
+    if (/[a-z]/i.test(s[1])) {
+      node = parseElement(context);
+    }
+  }
+  if (!node) {
+    node = parseText(context);
   }
   nodes.push(node);
   return nodes;
@@ -27,7 +38,8 @@ function parseInterpolation(context: { source: string }) {
   advanceBy(context, openDelimiter.length);
 
   const rowContentlength = closeIndex - openDelimiter.length;
-  const rowContent = context.source.slice(0, rowContentlength);
+
+  const rowContent = parseTextData(context, rowContentlength);
   const content = rowContent.trim();
 
   advanceBy(context, rowContentlength + closeDelimiter.length);
@@ -53,4 +65,34 @@ function createParserContext(content: string) {
   return {
     source: content,
   };
+}
+function parseElement(context: any) {
+  // 解析tag
+  // 删除处理完成的代码
+  const element = parseTag(context, TagType.start);
+  parseTag(context, TagType.end);
+  return element;
+}
+function parseTag(context: any, type) {
+  const match = /^<\/?([a-z]*)/.exec(context.source);
+  const tag = match[1];
+  advanceBy(context, match[0].length);
+  advanceBy(context, 1);
+  if (type === TagType.end) return;
+  return {
+    type: NodeTypes.ELEMENT,
+    tag,
+  };
+}
+function parseText(context: { source: string }): any {
+  const content = parseTextData(context, context.source.length);
+  return {
+    type: NodeTypes.TEXT,
+    content: content,
+  };
+}
+function parseTextData(context: { source: any }, length: number) {
+  const content = context.source.slice(0, length);
+  advanceBy(context, content.length);
+  return content;
 }

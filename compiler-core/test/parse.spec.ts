@@ -13,4 +13,23 @@ describe("Parse", () => {
       });
     });
   });
+  describe("element", () => {
+    test("simple element", () => {
+      const ast = baseParse("<footer></footer>");
+      expect(ast.children[0]).toStrictEqual({
+        type: NodeTypes.ELEMENT,
+        tag: "footer",
+      });
+    });
+  });
+
+  describe("text", () => {
+    test("simple text", () => {
+      const ast = baseParse("some text hahh");
+      expect(ast.children[0]).toStrictEqual({
+        type: NodeTypes.TEXT,
+        content: "some text hahh",
+      });
+    });
+  });
 });
