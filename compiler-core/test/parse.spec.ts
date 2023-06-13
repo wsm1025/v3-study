@@ -15,10 +15,11 @@ describe("Parse", () => {
   });
   describe("element", () => {
     test("simple element", () => {
-      const ast = baseParse("<footer></footer>");
+      const ast = baseParse("<div></div>");
       expect(ast.children[0]).toStrictEqual({
         type: NodeTypes.ELEMENT,
-        tag: "footer",
+        tag: "div",
+        children: [],
       });
     });
   });
@@ -31,5 +32,59 @@ describe("Parse", () => {
         content: "some text hahh",
       });
     });
+  });
+
+  test("hi", () => {
+    const ast = baseParse("<div>hi,{{message}}</div>");
+    expect(ast.children[0]).toStrictEqual({
+      type: NodeTypes.ELEMENT,
+      tag: "div",
+      children: [
+        {
+          type: NodeTypes.TEXT,
+          content: "hi,",
+        },
+        {
+          type: NodeTypes.INTEPOLATION,
+          content: {
+            type: NodeTypes.SIMPLE_EXPRESSION,
+            content: "message",
+          },
+        },
+      ],
+    });
+  });
+
+  test("nest elemnt", () => {
+    const ast = baseParse("<div><p>hi</p>{{message}}</div>");
+    expect(ast.children[0]).toStrictEqual({
+      type: NodeTypes.ELEMENT,
+      tag: "div",
+      children: [
+        {
+          type: NodeTypes.ELEMENT,
+          tag: "p",
+          children: [
+            {
+              type: NodeTypes.TEXT,
+              content: "hi",
+            },
+          ],
+        },
+        {
+          type: NodeTypes.INTEPOLATION,
+          content: {
+            type: NodeTypes.SIMPLE_EXPRESSION,
+            content: "message",
+          },
+        },
+      ],
+    });
+  });
+
+  test("throw error when no endTag", () => {
+    expect(() => {
+      baseParse("<div><span></div>");
+    }).toThrow("缺少结束标签" + "span");
   });
 });
