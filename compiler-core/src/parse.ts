@@ -79,6 +79,7 @@ function advanceBy(context: { source: string | any[] }, length: number) {
 function creteRoot(children: any) {
   return {
     children,
+    type: NodeTypes.ROOT,
   };
 }
 function createParserContext(content: string) {
