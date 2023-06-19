@@ -1,6 +1,8 @@
 export const isObject = (val) => {
   return val !== null && typeof val === "object";
 };
+export const isString = (value) => typeof value === "string";
+
 export const extend = Object.assign;
 export const hasChange = (newValue, oldValue) => !Object.is(newValue, oldValue);
 export const hasOwn = (val, key) =>

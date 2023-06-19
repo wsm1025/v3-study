@@ -1,5 +1,10 @@
+import { isString } from "../../share";
 import { NodeTypes } from "./ast";
-import { TO_DISPLAY_STRING, helpersMapNames } from "./runtimeHelpers";
+import {
+  CREATE_ELEMENT_VNODE,
+  TO_DISPLAY_STRING,
+  helpersMapNames,
+} from "./runtimeHelpers";
 
 export function generate(ast) {
   const context = createCodegenContext();
@@ -40,6 +45,12 @@ function genNode(node, context) {
     case NodeTypes.SIMPLE_EXPRESSION:
       genSimpleExpression(node, context);
       break;
+    case NodeTypes.ELEMENT:
+      genElement(node, context);
+      break;
+    case NodeTypes.COMPOUND_EXPRESS:
+      genCompoundExpress(node, context);
+      break;
     default:
       break;
   }
@@ -56,8 +67,51 @@ function genIntepolation(node: any, context: any) {
 }
 function genSimpleExpression(node: any, context: any) {
   const { push } = context;
-
   push(`${node.content}`);
+}
+function genElement(node: any, context: any) {
+  const { push, helper } = context;
+  const { tag, children, props } = node;
+  // const child = children[0];
+  push(`${helper(CREATE_ELEMENT_VNODE)}(`);
+  // for (let i = 0; i < children.length; i++) {
+  //   const child = children[i];
+  //   genNode(child, context);
+  // }
+  genNodeList(genNull([tag, props, children]), context);
+  // genNode(children, context);
+  push(")");
+}
+
+function genNull(array) {
+  return array.map((value) => value || "null");
+}
+function genNodeList(nodes, context) {
+  const { push } = context;
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    if (isString(node)) {
+      push(node);
+    } else {
+      genNode(node, context);
+    }
+    if (i < nodes.length - 1) {
+      push(", ");
+    }
+  }
+}
+function genCompoundExpress(node: any, context: any) {
+  const { push } = context;
+
+  const children = node.children;
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i];
+    if (isString(child)) {
+      push(child);
+    } else {
+      genNode(child, context);
+    }
+  }
 }
 
 function createCodegenContext() {
