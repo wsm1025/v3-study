@@ -74,6 +74,12 @@ function handleSetupResult(instance: instanceType, setupRes: any) {
 }
 function finishComponentSetup(instance: any) {
   const Component = instance.type;
+
+  if (compiler && !Component.render) {
+    if (Component.template) {
+      Component.render = compiler(Component.template);
+    }
+  }
   // if (Component.render) {
   instance.render = Component.render;
   // console.log(instance, "最后的instance");
@@ -85,6 +91,11 @@ export function getCurrentInstance() {
   return currentInstance;
 }
 
-function setCurrentInstance(instance: instanceType) {
+export function setCurrentInstance(instance: instanceType) {
   currentInstance = instance;
+}
+
+let compiler: any;
+export function registerRuntimeCompiler(_compiler: any) {
+  compiler = _compiler;
 }

@@ -145,7 +145,10 @@ export function createRenderer(options: {
           const { proxy } = instance;
           // 虚拟节点树🌲
           // 存下来 好更新的时候对比
-          const subTree = (instance.subTree = instance.render.call(proxy));
+          const subTree = (instance.subTree = instance.render.call(
+            proxy,
+            proxy
+          ));
           // console.log(subTree, "subTree");
           patch(null, subTree, container, instance, anchor);
           // 这里的 subtree 即为 渲染完好的 h 信息
@@ -162,7 +165,7 @@ export function createRenderer(options: {
             // 更新相关属性
             updateComponentPreRender(instance, next);
           }
-          const subTree = instance.render.call(proxy);
+          const subTree = instance.render.call(proxy, proxy);
           // 把最新的subtree 存起来 下次更新对比
           const preSubTree = instance.subTree;
           instance.subTree = subTree;
